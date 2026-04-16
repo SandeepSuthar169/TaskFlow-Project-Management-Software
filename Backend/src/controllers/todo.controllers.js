@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Todo } from "../models/Todo.models.js";
+import  {Todo}  from "../models/Todo.models.js";
 
 export const createTodo = async (req, res) => {
   // try {
@@ -113,64 +113,78 @@ export const deleteTodo = async (req, res) => {
 
 // ==================================================================
 
-
-const addNestedSubtask = (subtasks, parentId, newSubtasks) => {
-  return subtasks.map((task) => {
-    // Check if current task is the parent
-    if(task._id.toString() === parentId) {
+const addNestedSubtask = (subtasks, parentId, newSubtask) => {
+  return subtasks.map(task => {
+    if (task._id.toString() === parentId) {
       return {
         ...task.toObject(),
-        subtasks: [...task.subtasks, newSubtasks]
-      }
+        subtasks: [...task.subtasks, newSubtask]
+      };
     }
 
-    // If current task has subtasks, search recursively
-    if(task.subtasks && task.subtasks.length > 0){
+    if (task.subtasks?.length) {
       return {
         ...task.toObject(),
-        subtasks: addNestedSubtask(task.subtasks, parentId, newSubtasks)
-      }
+        subtasks: addNestedSubtask(task.subtasks, parentId, newSubtask)
+      };
     }
-    
+
     return task;
-  })
-}
+  });
+};
+
 
 export const createSubtask = async (req, res) => {
+  // try {
+    const { todoId, parentId } = req.params;
+    const { title, completed } = req.body;
 
-  const { todoId, parentId } = req.params;
-  const { title, completed } = req.body;
+    if (!title) {
+      return res.status(400).json({ message: "Title required" });
+    }
 
-  if(!title) {
-    return res.status(400).json({message: "Title not found"})
-  }
+    const todo = await Todo.findById(todoId);
 
-  const todo = await Todo.findById(todoId)
+    if (!todo) {
+      return res.status(404).json({ message: "Todo not found" });
+    }
 
-  if(!todo){
-    return res.status(400).json({message: "todo not found"})
-  }
 
-  const newSubtak = {
-    _id: new mongoose.Types.ObjectId(),
-    title,
-    completed: completed || false,
-    subtasks: []
-  }
+    const newSubtask = {
+      _id: new mongoose.Types.ObjectId(),
+      title,
+      completed: completed || false,
+      subtasks: []
+    };
 
-  if(parentId){
-    todo.subtasks = addNestedSubtask(todo.subtasks, parentId, newSubtak);
-  } else {
-    todo.subtasks.push(newSubtak);
-  }
+    // if adding directly to root
+    if (!parentId) {
+      todo.subtasks.push(newSubtask);
 
-  await todo.save();
+    } else {
+      todo.subtasks = addNestedSubtask(
+        todo.subtasks,
+        parentId,
+        newSubtask
+      );
+    }
 
-  res.status(200).json({
-    message: "Subtask added successfully",
-    data: todo
-  })
-}
+    await todo.save();
+
+    res.status(201).json({
+      message: "Subtask created",
+      data: todo
+    });
+
+  // } catch (error) {
+  //   res.status(500).json({ message: error.message });
+  // }
+};
+
+
+// ==================================================================
+
+
 
 
 

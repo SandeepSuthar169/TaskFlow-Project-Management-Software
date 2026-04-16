@@ -1,10 +1,9 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const subTodoSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true
   },
   completed: {
     type: Boolean,
@@ -13,7 +12,8 @@ const subTodoSchema = new mongoose.Schema({
   subtasks: [] 
 }, { _id: true });
 
-const todoSchema = new mongoose.Schema({
+// Main To-Do schema
+const TodoSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -22,9 +22,20 @@ const todoSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  subtasks: [subTodoSchema] 
+
+  subtasks: [subTodoSchema] ,
+
 }, {
   timestamps: true
 });
 
-export const Todo = mongoose.model("Todo", todoSchema);
+TodoSchema.index(
+  {
+    parentId: 1,
+    rootId: 1
+   }
+)
+
+
+export const  Todo = mongoose.model("Todo", TodoSchema);
+
