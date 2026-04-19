@@ -1,61 +1,8 @@
-import { useEffect } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { Loader } from "lucide-react"
-import { Toaster } from 'react-hot-toast'
-import Home from './Pages/Home.jsx'
-import Login from "./Auth/Login.jsx"
-import Signup from './Auth/Signup.jsx'
-import { useAuthStore } from './store/useAuthStore.js'
-import Layout from './layout/Layout.jsx'
-import TodoApp from './Pages/TaskPage/TodoPage.jsx'
-import TasksPage from './Pages/TaskPage/TaskPage.jsx'
-import TaskLayout from './layout/TaskLayout.jsx'
-import KanBan from './Pages/TaskPage/KanBan.jsx'
+import React from 'react'
 
-
-
-
-function App() {
-  const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
-
-  useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
-  
-  if (isCheckingAuth && !authUser) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader className="size-10 animate-spin" />
-      </div>
-    )
-  }
-
+const App = () => {
   return (
-    <>
-      <Toaster />
-      <Routes>
-        <Route path='/' element={<Layout />}>
-          <Route index element={<Home />} />
-        </Route>
-        <Route path='/task' element={<TaskLayout/>}>
-
-              <Route path='/task/todos' element={<TodoApp/>}/>
-              <Route path='/task/tasks' element={<TasksPage/>}/>
-              <Route path='/task/kan-ban' element={<KanBan/>}/>
-
-        </Route>
-        <Route 
-          path='login' 
-          element={!authUser ? <Login /> : <Navigate to='/' />} 
-        />
-        <Route 
-          path='signup' 
-          element={!authUser ? <Signup /> : <Navigate to='/' />} 
-        />
-
-       
-      </Routes>
-    </>
+    <div>App</div>
   )
 }
 
